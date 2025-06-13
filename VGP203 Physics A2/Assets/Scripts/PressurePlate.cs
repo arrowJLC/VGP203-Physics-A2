@@ -2,27 +2,25 @@ using UnityEngine;
 
 public class PressurePlate : MonoBehaviour
 {
-    PulleySystem pulleySystem;
+    [SerializeField] private PulleySystem targetPulley;
 
-    private void Start()
-    {
-        pulleySystem = FindFirstObjectByType<PulleySystem>();
-    }
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log("Pressure plate stepped on");
-        PulleySystem pull = other.gameObject.GetComponent<PulleySystem>();
-
-        //pull.beingPulled = true;
-        pulleySystem.playerPull();
-
+        if (targetPulley != null)
+        {
+            targetPulley.beingPulled = true;
+            targetPulley.playerPull();
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         Debug.Log("Pressure plate stepped off");
-        PulleySystem pull = other.gameObject.GetComponent<PulleySystem>();
 
-        //pull.beingPulled = false;
+        if (targetPulley != null)
+        {
+            targetPulley.beingPulled = false;
+        }
     }
+
 }

@@ -1,10 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System;
-using TMPro;
-using UnityEngine;
+
 
 public class WinCondition : MonoBehaviour
 {
@@ -16,7 +13,10 @@ public class WinCondition : MonoBehaviour
 
     private void Start()
     {
-        currentTime = 120;
+        //currentTime = 10;
+        carControllers = FindAnyObjectByType<CarControllers>();
+
+        currentTime = 390;
     }
 
     private void HandlePlayerSpawned()
@@ -28,11 +28,21 @@ public class WinCondition : MonoBehaviour
     {
         if (timerActive)
         {
-            currentTime = currentTime - Time.deltaTime;
+            if (currentTime > 0) currentTime = currentTime - Time.deltaTime;
+
+            if (currentTime <= 0)
+            {
+                stopTimer();
+
+                carControllers.loseScreen.gameObject.SetActive(true);
+                carControllers.inCar = false;
+            }
         }
-        TimeSpan time = TimeSpan.FromSeconds(currentTime);
+        //TimeSpan time = TimeSpan.FromSeconds(currentTime);
+        TimeSpan time = TimeSpan.FromSeconds(Mathf.Max(currentTime, 0));
         currentTimeText.text = time.Minutes.ToString() + ":" + time.Seconds.ToString("D2");
         //currentTimeText.text = time.ToString(@"mm\:ss\:fff");
+
     }
 
     public string getTime()
@@ -48,6 +58,9 @@ public class WinCondition : MonoBehaviour
     {
         timerActive = false;
     }
+
+
+
 }
 
 

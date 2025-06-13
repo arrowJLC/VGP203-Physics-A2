@@ -47,42 +47,49 @@ public class CarControllers : MonoBehaviour
 
 
     [Header("Acceleration Settings")]
-
     public float accelerationMultiplier = 1f;
     public float minAccelerationMultiplier = 1f;
     public float maxAccelerationMultiplier = 10f;
-    public float accelerationRampUpTime = 5f; // time in seconds to reach full multiplier
+    public float accelerationRampUpTime = 5f;
 
     private float accelerationTimer = 0f;
 
     [Header("Misc Settings")]
-
     private Rigidbody rb;
     private Vector3 velocity;
     private float moveInput;
     private float steerInput;
 
     public bool inCar = false;
+   
     protected int health;
     public Slider healthSlider;
     public TMP_Text speedText;
     WinCondition winCon;
+
+    public GameObject winScreen;
+    public GameObject loseScreen;
+    public GameObject finishLine;
 
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         winCon = FindFirstObjectByType<WinCondition>();
-        rb.isKinematic = true;
+        //rb.isKinematic = true;
         health = 5;
+
+        loseScreen.gameObject.SetActive(false);
+        winScreen.gameObject.SetActive(false);
+        finishLine.gameObject.SetActive(false);
 
         if (healthSlider != null )
         {
-            Debug.Log("health bar is active");
+            //Debug.Log("health bar is active");
             healthSlider.value = health;
         }
     }
-        private void Update()
+    private void Update()
     {
         moveInput = Input.GetAxis("Vertical");
 
@@ -101,7 +108,7 @@ public class CarControllers : MonoBehaviour
             //if (Input.GetKeyDown(KeyCode.J) && IsGrounded())
             if (Input.GetKeyDown(KeyCode.J))
             {
-                //Jump();
+                Jump();
                 Debug.Log("Jump triggered");
             }
 
@@ -348,12 +355,16 @@ public class CarControllers : MonoBehaviour
         {
             Debug.Log("Timer will start");
             winCon.startTimer();
+   
         }
 
        if (collision.CompareTag("Finish"))
         {
             Debug.Log("Timer will Stop");
+            winScreen.gameObject.SetActive(true);
             winCon.stopTimer();
+            inCar = false;
+            //hasHitFinish = true;
         }  
 
        if (collision.CompareTag("Obsticle"))
@@ -366,6 +377,13 @@ public class CarControllers : MonoBehaviour
         {
             Debug.Log("Insta Death");
             TakeDamage(health);
+            loseScreen.gameObject.SetActive(true);
+        }
+
+        if (collision.CompareTag("checkPoint"))
+        {
+            Debug.Log("Finihs line is now active");
+            finishLine.gameObject.SetActive(true);
         }
     }
 

@@ -9,6 +9,7 @@ TagManager:
   - Start
   - Obsticle
   - deathWall
+  - checkPoint
   layers:
   - Default
   - TransparentFX
