@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class RopeVisual : MonoBehaviour
 {
-    public Transform pulleyTopPoint;      // Where the rope starts (edge of pulley)
-    public Transform hangingMass;         // The object the rope connects to
+    public Transform pulleyTopPoint;     
+    public Transform hangingMass; 
 
     private LineRenderer lineRenderer;
 

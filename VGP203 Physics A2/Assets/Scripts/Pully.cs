@@ -2,7 +2,7 @@ using UnityEngine;
 public class PulleySystem : MonoBehaviour
 {
     public Rigidbody pulleyRb;
-    public Transform ropeStartPoint; // Point on the pulley where rope is attached
+    public Transform ropeStartPoint;
     public Rigidbody hangingMassRb;
 
     public float ropeLength = 2f;
@@ -13,77 +13,44 @@ public class PulleySystem : MonoBehaviour
     [HideInInspector] public bool beingPulled = false;
     private float g = 9.81f;
 
-    //void FixedUpdate()
-    //{
-    //    float m = hangingMassRb.mass;
-    //    float r = pulleyRadius;
-
-    //    // Moment of inertia of a solid disk
-    //    float I = 0.5f * pulleyMass * r * r;
-
-    //    // Linear acceleration of the hanging mass
-    //    float a = (m * g) / (m + I / (r * r));
-
-    //    // Tension in the rope
-    //    float T = m * (g - a);
-
-    //    // Torque applied to pulley
-    //    float torque = T * r;
-
-    //    // Apply torque to the pulley
-    //    pulleyRb.AddTorque(Vector3.back * torque);  // Make sure this axis matches your setup
-
-    //    // Apply upward tension force to the hanging mass
-    //    Vector3 tensionForce = Vector3.up * T;
-    //    hangingMassRb.AddForce(tensionForce);
-    //}
-
     void FixedUpdate()
     {
-        float m = hangingMassRb.mass;
-        float r = pulleyRadius;
-        float I = 0.5f * pulleyMass * r * r;
+        float mass = hangingMassRb.mass;
+        float rad = pulleyRadius;
+        float Inertia = 0.5f * pulleyMass * rad * rad;
+
         Vector3 ropeTop = ropeStartPoint.position;
         Vector3 ropeVec = hangingMassRb.position - ropeTop;
         float currentLength = ropeVec.magnitude;
         Vector3 direction = ropeVec.normalized;
 
-        // Ideal linear acceleration
-        float a = (m * g) / (m + I / (r * r));
-        float T = m * (g - a);
-        float torque = T * r;
+        float a = (mass * g) / (mass + Inertia / (rad * rad));
+        float Ten = mass * (g - a);
+        float torque = Ten * rad;
 
-        // Apply torque to the pulley
-        pulleyRb.AddTorque(Vector3.back * torque); // Adjust axis if needed
+        pulleyRb.AddTorque(Vector3.back * torque);
 
-        // Apply tension force upward along rope direction
-        Vector3 tensionForce = -direction * T;
+        Vector3 tensionForce = -direction * Ten;
         hangingMassRb.AddForce(tensionForce);
 
-        // Apply gravity
-        hangingMassRb.AddForce(Vector3.down * m * g);
+        hangingMassRb.AddForce(Vector3.down * mass * g);
 
-        // ?? Enforce fixed rope length
         float stretch = currentLength - ropeLength;
         if (Mathf.Abs(stretch) > 0.001f)
         {
-            // Move mass back to the correct position (non-physical correction)
             hangingMassRb.position = ropeTop + direction * ropeLength;
-
-            // Remove velocity along rope direction (zero out radial velocity)
             Vector3 velocity = hangingMassRb.linearVelocity;
             float radialSpeed = Vector3.Dot(velocity, direction);
             hangingMassRb.linearVelocity = velocity - direction * radialSpeed;
         }
     }
 
-
-    void LateUpdate()
-    {
-        float ropeLength = 2.0f; // Example value
-        Vector3 dir = (hangingMassRb.position - pulleyRb.position).normalized;
-        //hangingMassRb.position = pulleyRb.position + dir * ropeLength;
-    }
+    //void LateUpdate()
+    //{
+    //    float ropeLength = 2.0f;
+    //    Vector3 dir = (hangingMassRb.position - pulleyRb.position).normalized;
+    //    //hangingMassRb.position = pulleyRb.position + dir * ropeLength;
+    //}
 
     public void playerPull()
     {

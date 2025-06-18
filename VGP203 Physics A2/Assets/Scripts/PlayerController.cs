@@ -49,9 +49,8 @@ public class PlayerControllers : MonoBehaviour
 
     void Update()
     {
-        if (isInside) return; // Don't process movement if in car
+        if (isInside) return;
 
-        // Input
         float x = 0f, y = 0f;
         if (Input.GetKey(KeyCode.W)) y = 1f;
         if (Input.GetKey(KeyCode.S)) y = -1f;
@@ -65,11 +64,9 @@ public class PlayerControllers : MonoBehaviour
 
         isJumpPressed = Input.GetKeyDown(KeyCode.Space);
 
-        // Movement
         Vector3 move = ProjectedMoveDirection();
         UpdateCharacterVelocity(move);
 
-        // Gravity
         if (cc.isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
@@ -80,14 +77,12 @@ public class PlayerControllers : MonoBehaviour
 
         cc.Move(velocity * Time.deltaTime);
 
-        // Rotate towards movement
         if (move.magnitude > 0.1f)
         {
             Quaternion targetRot = Quaternion.LookRotation(move);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
         }
 
-        // Optional Raycast for debug
         Debug.DrawRay(transform.position, transform.forward * 10f, Color.red);
         if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 10f, raycastCollisionLayer))
         {
@@ -116,8 +111,6 @@ public class PlayerControllers : MonoBehaviour
 
     public void LeaveCar(CarControllers car)
     {
-        Debug.Log("Player is leaving the car...");
-
         transform.parent = null;
         transform.rotation = Quaternion.Euler(3, 0, 0);
         transform.position += Vector3.right * 3;
@@ -131,7 +124,7 @@ public class PlayerControllers : MonoBehaviour
             car.inCar = false;
         }
 
-        Debug.Log("Player exited the car.");
+        Debug.Log("Player left the car.");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -155,9 +148,4 @@ public class PlayerControllers : MonoBehaviour
             LeaveCar(car);
         }
     }
-
-
 }
-
-
-

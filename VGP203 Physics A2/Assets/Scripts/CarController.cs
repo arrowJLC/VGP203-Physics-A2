@@ -94,7 +94,7 @@ public class CarControllers : MonoBehaviour
         moveInput = Input.GetAxis("Vertical");
 
         float targetSteer = Input.GetAxis("Horizontal");
-        steerInput = Mathf.Lerp(steerInput, targetSteer, 100f * Time.deltaTime); // tweak 5f for responsiveness
+        steerInput = Mathf.Lerp(steerInput, targetSteer, 100f * Time.deltaTime);
 
         if (inCar)
         {
@@ -143,17 +143,14 @@ public class CarControllers : MonoBehaviour
     {
         float appliedForce = moveInput * engineForce;
 
-        // Acceleration using F = ma
         Vector3 acceleration = transform.forward * (appliedForce / carMass) * accelerationMultiplier;
 
-        // Drag
         velocity *= (1 - drag * Time.deltaTime);
 
-        // Apply acceleration
         velocity += acceleration * Time.deltaTime;
 
         Vector3 localVels = transform.InverseTransformDirection(velocity);
-        localVels.x *= 0.9f; // Stronger lateral damping
+        localVels.x *= 0.9f;
         velocity = transform.TransformDirection(localVels);
 
         if (isHBrake && velocity.magnitude > 1f)
@@ -171,17 +168,15 @@ public class CarControllers : MonoBehaviour
         {
             Vector3 localVel = transform.InverseTransformDirection(velocity);
 
-            // Introduce intentional sideways movement
-            float driftSlip = steerInput * 5f; // tweak this value
+            float driftSlip = steerInput * 5f; 
             localVel.x += driftSlip * Time.deltaTime;
 
-            // Optional: reduce forward grip slightly
-            localVel.z *= 0.98f;
+            localVel.z *= 0.50f;
 
             velocity = transform.TransformDirection(localVel);
         }
 
-        // Clamp speed
+
         float forwardSpeed = Vector3.Dot(velocity, transform.forward);
         if (forwardSpeed > maxSpeed)
         {
@@ -192,7 +187,6 @@ public class CarControllers : MonoBehaviour
             velocity = transform.forward * -maxReverse;
         }
 
-        // Move
         transform.position += velocity * Time.deltaTime;
 
         currentSpeed = velocity.magnitude * 3.6f; // km/h
@@ -201,8 +195,7 @@ public class CarControllers : MonoBehaviour
 
         if (alignment < 0.3f && moveInput > 0f)
         {
-            // Too sideways — stop forward driving force
-            velocity *= 0.95f; // slow it down, or set to Vector3.zero for hard stop
+            velocity *= 0.95f;
         }
     }
 
@@ -214,18 +207,18 @@ public class CarControllers : MonoBehaviour
     void ApplyWheelForces()
     {
         float motorTorque = moveInput * engineForce;
-        //float steerAngle = steerInput * steeringSpeed;
 
-        // Apply rear-wheel torque
+        // rear wheels
         rearLeftCollider.motorTorque = motorTorque;
         rearRightCollider.motorTorque = motorTorque;
 
-        // Steering to front wheels
-        //frontLeftCollider.steerAngle = steerAngle;
-        //frontRightCollider.steerAngle = steerAngle;
+        // front wheels
         float steerAngle = steerInput * maxSteerAngle;
         frontLeftCollider.steerAngle = steerAngle;
         frontRightCollider.steerAngle = steerAngle;
+        
+        //frontLeftCollider.motorTorque = motorTorque;
+        //frontRightCollider.motorTorque = motorTorque;
     }
     void Brake()
     {
@@ -234,13 +227,10 @@ public class CarControllers : MonoBehaviour
             float speed = velocity.magnitude;
             if (speed > 0.1f)
             {
-                // Use braking force to calculate a deceleration value
                 float brakingPower = (brakeForce / carMass) * Time.deltaTime;
 
-                // Apply deceleration in the opposite direction of current velocity
                 Vector3 braking = velocity.normalized * brakingPower;
 
-                // Only subtract braking if it's less than the current speed
                 if (braking.magnitude < velocity.magnitude)
                     velocity -= braking;
                 else
@@ -249,17 +239,16 @@ public class CarControllers : MonoBehaviour
         }
         else if (Mathf.Approximately(moveInput, 0))
         {
-            // Gentle rolling resistance when no throttle is applied
             velocity = Vector3.MoveTowards(velocity, Vector3.zero, (drag * 2f) * Time.deltaTime);
         }
     }
 
     void ApplyBrakes(float force)
     {
-        frontLeftCollider.brakeTorque = force;
-        frontRightCollider.brakeTorque = force;
-        rearLeftCollider.brakeTorque = force;
-        rearRightCollider.brakeTorque = force;
+        //frontLeftCollider.brakeTorque = force;
+        //frontRightCollider.brakeTorque = force;
+        //rearLeftCollider.brakeTorque = force;
+        //rearRightCollider.brakeTorque = force;
     }
 
     void UpdateWheelVisuals()
@@ -281,14 +270,11 @@ public class CarControllers : MonoBehaviour
     {
         if (velocity.magnitude > 0.1f)
         {
-            // Determine forward or reverse
             float forwardSpeed = Vector3.Dot(velocity, transform.forward);
-            float direction = Mathf.Sign(forwardSpeed); // 1 = forward, -1 = reverse
+            float direction = Mathf.Sign(forwardSpeed);
 
             float speedFactor = Mathf.Clamp01(velocity.magnitude / 50f);
             float driftBoost = isDrifting ? driftSteeringBoost : 1f;
-
-            // Use direction multiplier to steer properly in reverse
             float steerAmount = steerInput * maxSteerAngle * speedFactor * driftBoost * direction;
 
             Quaternion targetRotation = Quaternion.Euler(0f, steerAmount, 0f) * transform.rotation;
@@ -306,7 +292,7 @@ public class CarControllers : MonoBehaviour
 
     void UpdateAccelerationMultiplier()
     {
-        if (moveInput > 0.1f)
+        if (Mathf.Abs(moveInput) > 0.1f)
         {
             accelerationTimer += Time.deltaTime;
             float t = Mathf.Clamp01(accelerationTimer / accelerationRampUpTime);
@@ -400,3 +386,29 @@ public class CarControllers : MonoBehaviour
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//steerInput = Mathf.Lerp(steerInput, targetSteer, 100f * Time.deltaTime); // tweak 5f for responsiveness
